@@ -2,7 +2,7 @@ package com.codurance.telemetrySystemKata;
 
 import org.junit.Test;
 
-public class TelemetryDiagnosticControlsTest
+public class TelemetryDiagnosticControlsShould
 {
     
 	@Test
