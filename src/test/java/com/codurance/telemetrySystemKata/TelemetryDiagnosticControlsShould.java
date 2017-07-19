@@ -8,12 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TelemetryDiagnosticControlsShould {
 
     public static final boolean DISCONNECTED = false;
+    public static final String TELEMETRY_SERVER_CONNECTION_STRING ="*111#";
+    public static final int MAX_NUMBER_OF_CONNECTION_ATTEMPTS = 3;
     @Mock
     private TelemetryClient telemetryClient;
     private TelemetryDiagnosticControls telemetryDiagnosticControls;
@@ -39,5 +41,17 @@ public class TelemetryDiagnosticControlsShould {
         given(telemetryClient.getOnlineStatus()).willReturn(DISCONNECTED);
 
         telemetryDiagnosticControls.checkTransmission();
+    }
+
+    @Test
+    public void not_retry_to_connect_to_client_forever() {
+        given(telemetryClient.getOnlineStatus()).willReturn(DISCONNECTED);
+
+        try {
+            telemetryDiagnosticControls.checkTransmission();
+        } catch (Exception ignored) {
+        }
+
+        verify(telemetryClient, atMost(MAX_NUMBER_OF_CONNECTION_ATTEMPTS)).connect(TELEMETRY_SERVER_CONNECTION_STRING);
     }
 }
