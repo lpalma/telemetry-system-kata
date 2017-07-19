@@ -16,6 +16,7 @@ public class TelemetryDiagnosticControlsShould {
     public static final boolean DISCONNECTED = false;
     public static final String TELEMETRY_SERVER_CONNECTION_STRING ="*111#";
     public static final int MAX_NUMBER_OF_CONNECTION_ATTEMPTS = 3;
+    public static final boolean CONNECTED = true;
     @Mock
     private TelemetryClient telemetryClient;
     private TelemetryDiagnosticControls telemetryDiagnosticControls;
@@ -27,7 +28,7 @@ public class TelemetryDiagnosticControlsShould {
 
     @Test
     public void CheckTransmission_should_send_a_diagnostic_message_and_receive_a_status_message_response() throws Exception {
-        given(telemetryClient.getOnlineStatus()).willReturn(true);
+        given(telemetryClient.getOnlineStatus()).willReturn(CONNECTED);
 
         telemetryDiagnosticControls.checkTransmission();
 
@@ -53,5 +54,14 @@ public class TelemetryDiagnosticControlsShould {
         }
 
         verify(telemetryClient, atMost(MAX_NUMBER_OF_CONNECTION_ATTEMPTS)).connect(TELEMETRY_SERVER_CONNECTION_STRING);
+    }
+
+    @Test
+    public void stop_retrying_if_connection_is_received() throws Exception {
+        given(telemetryClient.getOnlineStatus()).willReturn(DISCONNECTED, CONNECTED);
+
+        telemetryDiagnosticControls.checkTransmission();
+
+        verify(telemetryClient, times(1)).connect(TELEMETRY_SERVER_CONNECTION_STRING);
     }
 }
