@@ -64,4 +64,15 @@ public class TelemetryDiagnosticControlsShould {
 
         verify(telemetryClient, times(1)).connect(TELEMETRY_SERVER_CONNECTION_STRING);
     }
+
+    @Test
+    public void disconnect_before_trying_new_connection() throws Exception {
+        given(telemetryClient.getOnlineStatus()).willReturn(DISCONNECTED, CONNECTED);
+
+        telemetryDiagnosticControls.checkTransmission();
+
+        InOrder inOrder = inOrder(telemetryClient);
+        inOrder.verify(telemetryClient).disconnect();
+        inOrder.verify(telemetryClient).connect(TELEMETRY_SERVER_CONNECTION_STRING);
+    }
 }
